@@ -3,15 +3,17 @@ import shutil, enum
 
 class eCareDirection( enum.Enum ):
     CARE_LEFT   = 0,
-    CARE_RIGHT  = 1
+    CARE_RIGHT  = 1,
+    CARE_BOTH   = 2
 
 
-to_prune = [ "./recorbra2.py", "./prune.py" ]
+to_prune = [ "./prune.py", "recorbra2.py" ]
 charinfo_map = {
     "(": {  "dont_repel": [ ")", " " ], "care": eCareDirection.CARE_RIGHT,    "space": " "  },
     ")": {  "dont_repel": [ "(", " " ], "care": eCareDirection.CARE_LEFT,     "space": " "  },
     "[": {  "dont_repel": [ "]", " " ], "care": eCareDirection.CARE_RIGHT,    "space": " "  },
-    "]": {  "dont_repel": [ "[", " " ], "care": eCareDirection.CARE_LEFT,     "space": " "  }
+    "]": {  "dont_repel": [ "[", " " ], "care": eCareDirection.CARE_LEFT,     "space": " "  },
+    "=": {  "dont_repel": [ "=", " " ], "care": eCareDirection.CARE_BOTH,     "space": " "  }
 }
 
 for file_name in to_prune:
@@ -48,6 +50,11 @@ for file_name in to_prune:
             if ( x < ( len( lines[ y ] ) - 2 ) ) and ( char_info[ "care" ] == eCareDirection.CARE_RIGHT ):
                 if ( lines[ y ][ x + 1 ] not in char_info[ "dont_repel" ] ):
                     repel_right_needed = True
+            if ( char_info[ "care" ] == eCareDirection.CARE_BOTH ):
+                if ( lines[ y ][ x - 1 ] not in char_info[ "dont_repel" ] ):
+                    repel_left_needed = True
+                if ( lines[ y ][ x + 1 ] not in char_info[ "dont_repel" ] ):
+                    repel_right_needed = True
             
             # Display info
             if ( repel_left_needed or repel_right_needed ) and ( not comment_mode ) and ( not quote_mode ):
@@ -62,10 +69,10 @@ for file_name in to_prune:
                     print( "After: '" + lines[ y ][ x + 1 ] + "'" )
                 """
             
-                if repel_left_needed:
-                    lines[ y ] = lines[ y ][ :x ] + char_info[ "space" ] + lines[ y ][ x: ]
                 if repel_right_needed:
                     lines[ y ] = lines[ y ][ :x + 1 ] + char_info[ "space" ] + lines[ y ][ x + 1: ]
+                if repel_left_needed:
+                    lines[ y ] = lines[ y ][ :x ] + char_info[ "space" ] + lines[ y ][ x: ]
     
     # Finally rewrite file
     file = open( file_name, "w" )

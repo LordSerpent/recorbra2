@@ -126,5 +126,10 @@ dmypy.json
 # LordSerpent
 *.backup
 master_record.json
-./recorbra_library/
+recorbra_library/*
+blah/*
+Docs/*
+temp.json
+ytdl
+
 
